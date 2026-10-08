@@ -1,26 +1,179 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens. Every color comes from a variable, so light/dark switches in
+ * one place: [data-theme] on <html> (set before paint) or the system setting.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --app: #ffffff;
+  --app-subtle: #f5f5f7;
+  --surface: #ffffff;
+  --surface-2: #f2f2f5;
+  --surface-3: #e7e7ec;
+  --fg: #0b0b0f;
+  --fg-2: #6b6b74;
+  --fg-3: #a1a1aa;
+  --line: rgb(0 0 0 / 0.07);
+  --accent: #0a6cff;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(10 108 255 / 0.12);
+  --accent-2: #7b61ff;
+  --online: #22c55e;
+  --danger: #ff3b30;
+  --danger-soft: rgb(255 59 48 / 0.1);
+  --bubble-in: #f1f1f4;
+  --bubble-in-fg: #0b0b0f;
+  --bubble-out: #0a6cff;
+  --bubble-out-fg: #ffffff;
+  --overlay: rgb(0 0 0 / 0.32);
+  --glass: rgb(255 255 255 / 0.72);
+  --toast: rgb(10 10 12 / 0.9);
+  --float-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 28px rgb(0 0 0 / 0.08);
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Noto Color Emoji";
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root[data-theme="dark"] {
+  --app: #000000;
+  --app-subtle: #0c0c0e;
+  --surface: #151517;
+  --surface-2: #1f1f22;
+  --surface-3: #2b2b2f;
+  --fg: #f5f5f7;
+  --fg-2: #9c9ca5;
+  --fg-3: #63636b;
+  --line: rgb(255 255 255 / 0.08);
+  --accent-soft: rgb(10 108 255 / 0.2);
+  --danger: #ff453a;
+  --danger-soft: rgb(255 69 58 / 0.14);
+  --bubble-in: #1f1f22;
+  --bubble-in-fg: #f5f5f7;
+  --overlay: rgb(0 0 0 / 0.6);
+  --glass: rgb(21 21 23 / 0.72);
+  --toast: rgb(48 48 52 / 0.94);
+  --float-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px rgb(0 0 0 / 0.55);
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --app: #000000;
+    --app-subtle: #0c0c0e;
+    --surface: #151517;
+    --surface-2: #1f1f22;
+    --surface-3: #2b2b2f;
+    --fg: #f5f5f7;
+    --fg-2: #9c9ca5;
+    --fg-3: #63636b;
+    --line: rgb(255 255 255 / 0.08);
+    --accent-soft: rgb(10 108 255 / 0.2);
+    --danger: #ff453a;
+    --danger-soft: rgb(255 69 58 / 0.14);
+    --bubble-in: #1f1f22;
+    --bubble-in-fg: #f5f5f7;
+    --overlay: rgb(0 0 0 / 0.6);
+    --glass: rgb(21 21 23 / 0.72);
+  --toast: rgb(48 48 52 / 0.94);
+    --float-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px rgb(0 0 0 / 0.55);
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-app: var(--app);
+  --color-app-subtle: var(--app-subtle);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-2: var(--accent-2);
+  --color-online: var(--online);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-bubble-in: var(--bubble-in);
+  --color-bubble-in-fg: var(--bubble-in-fg);
+  --color-bubble-out: var(--bubble-out);
+  --color-bubble-out-fg: var(--bubble-out-fg);
+  --color-overlay: var(--overlay);
+  --color-glass: var(--glass);
+  --color-toast: var(--toast);
+  --shadow-float: var(--float-shadow);
+  --font-sans: var(--font-system);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+    background: var(--app);
+    color: var(--fg);
+    font-family: var(--font-system);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  button:disabled {
+    cursor: default;
+  }
+}
+
+/* Safe areas: notch / Dynamic Island on top, home indicator at the bottom. */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility px-safe {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+@utility top-safe {
+  top: env(safe-area-inset-top);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

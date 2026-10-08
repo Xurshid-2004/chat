@@ -1,0 +1,51 @@
+# Backend — Django + DRF + Channels
+
+Barcha buyruqlar `backend` papkasi ichida ishga tushiriladi (PowerShell yoki CMD).
+Virtual muhitni "activate" qilish shart emas — buyruqlar to'g'ridan-to'g'ri `.venv\Scripts\python` orqali.
+
+## Birinchi marta sozlash
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+copy .env.example .env
+```
+
+`.env` ichidagi `DJANGO_SECRET_KEY` ni yangi kalit bilan almashtiring:
+
+```powershell
+.venv\Scripts\python -c "import secrets; print(secrets.token_urlsafe(50))"
+```
+
+## Ishga tushirish
+
+```powershell
+.venv\Scripts\python manage.py migrate
+.venv\Scripts\python manage.py runserver
+```
+
+- Server: http://127.0.0.1:8000 (HTTP va WebSocket bitta serverda — Daphne)
+- Tekshirish: http://127.0.0.1:8000/api/health/ — qaysi baza, cache va channel layer ishlayotganini ko'rsatadi
+- Ilovani brauzerda **Next.js orqali** oching (http://localhost:3000) — ishga tushirish: [asosiy README](../README.md)
+
+> ⚠️ Har doim `.venv\Scripts\python` orqali. Oddiy `python manage.py ...` kompyuterdagi umumiy Python'ni
+> ishlatadi — unda paketlarning boshqa versiyalari bo'lishi mumkin.
+
+## Testlar
+
+```powershell
+.venv\Scripts\python manage.py test
+```
+
+## PostgreSQL va Redis'ga o'tish
+
+`.env` faylida ikki qatorni to'ldiring:
+
+```
+DATABASE_URL=postgres://USER:PASSWORD@localhost:5432/DBNAME
+REDIS_URL=redis://localhost:6379/0
+```
+
+Bo'sh qolsa — SQLite va xotira ishlatiladi. Bu **faqat development uchun**: xotiradagi real-time
+bitta jarayon ichida ishlaydi. O'tgandan keyin `migrate` ni qayta ishlating va `/api/health/` ni
+tekshiring — hammasi `"ok": true` bo'lishi kerak.
