@@ -131,9 +131,13 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 export const authApi = {
   me: () => request<User>("/auth/me/"),
   /** The start screen: a new account with this name and avatar, signed in on this device. */
-  start: (data: { name: string; avatar_preset: string }) =>
+  /** Whether the start screen must ask for the invite code. */
+  startOptions: () => request<{ invite_required: boolean }>("/auth/guest/", { refresh: false }),
+  start: (data: { name: string; avatar_preset: string; invite_code?: string }) =>
     request<{ user: User }>("/auth/guest/", { method: "POST", body: data, refresh: false }),
   logout: () => request<void>("/auth/logout/", { method: "POST", refresh: false }),
+  /** A one-minute pass for opening the WebSocket straight to the backend. */
+  webSocketTicket: () => request<{ ticket: string }>("/auth/ws-ticket/", { method: "POST" }),
 };
 
 export const usersApi = {

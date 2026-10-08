@@ -4,6 +4,11 @@ import type { NextConfig } from "next";
 // /api, /media and /ws there, so cookies and WebSockets share one origin.
 const BACKEND_URL = (process.env.BACKEND_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
+// A backend on its own HTTPS host (e.g. Render behind a Vercel frontend): hosts
+// like Vercel can't proxy WebSockets, so the browser opens the socket straight
+// to the backend with a short-lived ticket. Locally it stays same-origin (/ws/).
+const DIRECT_WS_URL = BACKEND_URL.startsWith("https://") ? `${BACKEND_URL.replace(/^https/, "wss")}/ws/` : "";
+
 // Next.js buffers proxied request bodies and silently cuts them at this size
 // (default 10 MB). Keep it above the backend's CHAT_MAX_REQUEST_SIZE (125 MB).
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB ?? 130);
@@ -20,7 +25,7 @@ const CSP = [
   "img-src 'self' blob: data:",
   "media-src 'self' blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self'${DIRECT_WS_URL ? ` ${new URL(DIRECT_WS_URL).origin}` : ""}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -36,6 +41,7 @@ const PAGE_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  env: { CHAT_DIRECT_WS_URL: DIRECT_WS_URL },
   experimental: {
     agentFeedback: true,
     proxyClientMaxBodySize: `${MAX_UPLOAD_MB}mb`,

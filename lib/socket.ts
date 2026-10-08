@@ -6,11 +6,13 @@
  * session when the server closes with 4401, and reconnects right away when
  * the phone comes back online or the app returns to the foreground.
  */
-import { notifySessionExpired, refreshSession } from "./api";
+import { ApiError, authApi, notifySessionExpired, refreshSession } from "./api";
 import { useConnection } from "./store/connection";
 import type { ServerEvent, TypingAction } from "./types";
 
 const CLOSE_UNAUTHORIZED = 4401;
+/** Set at build time when the backend lives on another host (see next.config.ts). */
+const DIRECT_WS_URL = process.env.CHAT_DIRECT_WS_URL ?? "";
 const PING_EVERY_MS = 25_000;
 const PONG_TIMEOUT_MS = 10_000;
 const MAX_BACKOFF_MS = 15_000;
@@ -19,6 +21,7 @@ type EventListener = (event: ServerEvent) => void;
 
 class ChatSocket {
   private socket: WebSocket | null = null;
+  private fetchingTicket = false;
   private wanted = false;
   private connectedBefore = false;
   private attempts = 0;
@@ -76,15 +79,36 @@ class ChatSocket {
   }
 
   private connect() {
-    if (!this.wanted || this.socket) return;
+    if (!this.wanted || this.socket || this.fetchingTicket) return;
     clearTimeout(this.retryTimer);
     if (!navigator.onLine) {
       useConnection.getState().setStatus("offline");
       return;
     }
     useConnection.getState().setStatus("connecting");
-    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const socket = new WebSocket(`${protocol}://${window.location.host}/ws/`);
+    if (!DIRECT_WS_URL) {
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+      this.open(`${protocol}://${window.location.host}/ws/`);
+      return;
+    }
+    // Straight to the backend: its cookies live on our domain, so prove who we are with a ticket.
+    this.fetchingTicket = true;
+    authApi
+      .webSocketTicket()
+      .then(({ ticket }) => {
+        this.fetchingTicket = false;
+        if (this.wanted && !this.socket) this.open(`${DIRECT_WS_URL}?ticket=${encodeURIComponent(ticket)}`);
+      })
+      .catch((error: unknown) => {
+        this.fetchingTicket = false;
+        if (!this.wanted) return;
+        if (error instanceof ApiError && error.status === 401) notifySessionExpired();
+        else this.scheduleReconnect();
+      });
+  }
+
+  private open(url: string) {
+    const socket = new WebSocket(url);
     this.socket = socket;
     socket.onmessage = (message) => this.handleMessage(message);
     socket.onclose = (event) => {
