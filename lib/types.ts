@@ -15,6 +15,12 @@ export interface User {
   created_at: string;
 }
 
+/** A person as the moderation panel sees them. */
+export interface Member extends User {
+  chats: number;
+  messages: number;
+}
+
 export type MessageType = "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE";
 
 export interface Attachment {

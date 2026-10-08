@@ -3,7 +3,7 @@
  * browser sends it automatically; this module adds the CSRF header and, when
  * the short-lived access token has expired (401), refreshes it once and retries.
  */
-import type { Chat, CursorPage, Message, MessagePage, User } from "./types";
+import type { Chat, CursorPage, Member, Message, MessagePage, User } from "./types";
 
 const API = "/api";
 
@@ -153,6 +153,14 @@ export const usersApi = {
       method: "POST",
       body: { current_password: currentPassword, new_password: newPassword },
     }),
+};
+
+export const moderationApi = {
+  status: () => request<{ enabled: boolean; unlocked: boolean }>("/moderation/status/"),
+  unlock: (password: string) => request<{ unlocked: boolean }>("/moderation/unlock/", { method: "POST", body: { password } }),
+  lock: () => request<void>("/moderation/lock/", { method: "POST" }),
+  members: () => request<Member[]>("/moderation/users/"),
+  deleteMember: (id: number) => request<void>(`/moderation/users/${id}/`, { method: "DELETE" }),
 };
 
 export const chatsApi = {

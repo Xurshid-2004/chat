@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
-import { Pencil, Search, SquarePen, X } from "lucide-react";
+import { Pencil, Search, ShieldCheck, SquarePen, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -218,9 +218,20 @@ export function ChatSidebar({ activeChatId, onOpenChat }: SidebarProps) {
               </motion.span>
             </ConnectionBadge>
           </div>
-          <IconButton label="New chat" onClick={findPeople}>
-            <SquarePen className="size-[22px] text-accent" />
-          </IconButton>
+          <div className="flex items-center">
+            {/* Admin panel: asks for the admin password, then lists and removes accounts. */}
+            <Link
+              href="/moderation"
+              aria-label="Admin"
+              title="Admin"
+              className="grid size-11 place-items-center rounded-full active:bg-surface-2 md:hover:bg-surface-2"
+            >
+              <ShieldCheck className="size-[22px] text-accent" />
+            </Link>
+            <IconButton label="New chat" onClick={findPeople}>
+              <SquarePen className="size-[22px] text-accent" />
+            </IconButton>
+          </div>
         </div>
       </header>
 

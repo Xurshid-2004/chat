@@ -14,5 +14,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Signed-in pages only. Never "/" (it would match every path, /api included).
-  matcher: ["/chat/:path*", "/profile/:path*"],
+  matcher: ["/chat/:path*", "/profile/:path*", "/moderation/:path*"],
 };
