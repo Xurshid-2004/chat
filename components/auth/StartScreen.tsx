@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion, useAnimate } from "motion/react";
-import { ArrowRight, Check, KeyRound, UserRound } from "lucide-react";
+import { ArrowRight, Check, UserRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -19,12 +19,7 @@ const NAME_LIMIT = 40;
 
 /** Choose an avatar, type a name, start: that's the whole sign-up. */
 export function StartScreen() {
-  const searchParams = useSearchParams();
-  const next = safeNextPath(searchParams.get("next"));
-  // A shared link can carry the code: https://…/?invite=CODE
-  const [invite, setInvite] = useState(searchParams.get("invite") ?? "");
-  const [inviteRequired, setInviteRequired] = useState(false);
-  const [inviteError, setInviteError] = useState<string>();
+  const next = safeNextPath(useSearchParams().get("next"));
   const [preset, setPreset] = useState(AVATAR_PRESETS[0].key);
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string>();
@@ -35,13 +30,6 @@ export function StartScreen() {
 
   const cleanName = name.trim().replace(/\s+/g, " ");
 
-  useEffect(() => {
-    authApi
-      .startOptions()
-      .then((options) => setInviteRequired(options.invite_required))
-      .catch(() => undefined); // the server still checks the code
-  }, []);
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!cleanName) {
@@ -49,32 +37,19 @@ export function StartScreen() {
       animate(scope.current, { x: [0, -10, 10, -6, 6, -2, 0] }, { duration: 0.42 });
       return;
     }
-    if (inviteRequired && !invite.trim()) {
-      setInviteError("Enter the invite code.");
-      animate(scope.current, { x: [0, -10, 10, -6, 6, -2, 0] }, { duration: 0.42 });
-      return;
-    }
     setPending(true);
     setNameError(undefined);
-    setInviteError(undefined);
     setFormError(undefined);
     try {
-      await authApi.start({
-        name: cleanName,
-        avatar_preset: preset,
-        ...(invite.trim() ? { invite_code: invite.trim() } : {}),
-      });
+      await authApi.start({ name: cleanName, avatar_preset: preset });
       setDone(true);
       // A full load starts the app with a clean state for this account.
       window.location.assign(next);
     } catch (error) {
       setPending(false);
       if (error instanceof ApiError) {
-        const inviteProblem = error.field("invite_code");
         setNameError(error.field("name"));
-        setInviteError(inviteProblem);
-        if (inviteProblem) setInviteRequired(true);
-        setFormError(error.field("name") || inviteProblem ? undefined : error.message);
+        setFormError(error.field("name") ? undefined : error.message);
       } else {
         setFormError("Something went wrong. Please try again.");
       }
@@ -159,26 +134,6 @@ export function StartScreen() {
         }}
         error={nameError}
       />
-
-      {inviteRequired && (
-        <TextField
-          label="Invite code"
-          icon={KeyRound}
-          name="invite"
-          autoComplete="off"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          enterKeyHint="go"
-          placeholder="The code your friend gave you"
-          value={invite}
-          onChange={(event) => {
-            setInvite(event.target.value);
-            if (inviteError) setInviteError(undefined);
-          }}
-          error={inviteError}
-        />
-      )}
 
       <Button type="submit" size="lg" loading={pending} disabled={!cleanName && !nameError} className="w-full">
         {done ? (
