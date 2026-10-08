@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Screen height breakpoints: the start screen must fit without scrolling. */
+@custom-variant short (@media (max-height: 740px));
+@custom-variant tiny (@media (max-height: 620px));
+@custom-variant flat (@media (orientation: landscape) and (max-height: 500px));
+
 /*
  * Design tokens. Every color comes from a variable, so light/dark switches in
  * one place: [data-theme] on <html> (set before paint) or the system setting.

@@ -57,11 +57,11 @@ export function StartScreen() {
   }
 
   return (
-    <form ref={scope} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form ref={scope} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5 short:gap-3">
       <FormError message={formError} />
 
       {/* How the other person will see you in their chat list. */}
-      <div className="flex items-center gap-3 rounded-[22px] bg-surface-2 p-3" aria-live="polite">
+      <div className="flex items-center gap-3 rounded-[22px] bg-surface-2 p-3 tiny:hidden" aria-live="polite">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.span
             key={preset}
@@ -83,8 +83,8 @@ export function StartScreen() {
       </div>
 
       <fieldset>
-        <legend className="mb-2 ml-1 text-[13px] font-medium text-fg-2">Choose your avatar</legend>
-        <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Avatar">
+        <legend className="mb-2 ml-1 text-[13px] font-medium text-fg-2 short:mb-1.5">Choose your avatar</legend>
+        <div className="grid grid-cols-6 gap-2 flat:grid-cols-12" role="radiogroup" aria-label="Avatar">
           {AVATAR_PRESETS.map((option) => {
             const selected = option.key === preset;
             return (
@@ -108,7 +108,7 @@ export function StartScreen() {
                   />
                 )}
                 <span
-                  className="grid size-full place-items-center rounded-full text-[26px] leading-none"
+                  className="grid size-full place-items-center rounded-full text-[26px] leading-none flat:text-[21px]"
                   style={{ background: `linear-gradient(145deg, ${option.from}, ${option.to})` }}
                 >
                   {option.emoji}

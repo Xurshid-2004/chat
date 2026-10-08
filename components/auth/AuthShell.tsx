@@ -54,23 +54,23 @@ export function AuthShell({ title, subtitle, children, footer, showLogo = true }
         initial="hidden"
         animate="show"
         variants={container}
-        className="relative z-10 mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center px-6 py-10"
+        className="relative z-10 mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center px-6 py-10 short:py-4 flat:max-w-[640px]"
       >
         {showLogo && (
           <motion.div variants={fadeUp} className="mb-7">
             <Logo className="size-16 drop-shadow-[0_10px_24px_rgb(10_108_255_/_0.35)]" />
           </motion.div>
         )}
-        <motion.h1 variants={fadeUp} className="text-[30px] font-bold leading-tight tracking-tight text-fg">
+        <motion.h1 variants={fadeUp} className="text-[30px] font-bold leading-tight tracking-tight text-fg short:text-[24px]">
           {title}
         </motion.h1>
-        <motion.p variants={fadeUp} className="mt-2 text-[16px] leading-relaxed text-fg-2">
+        <motion.p variants={fadeUp} className="mt-2 text-[16px] leading-relaxed text-fg-2 short:mt-1 short:text-[14px] short:leading-snug flat:hidden">
           {subtitle}
         </motion.p>
-        <motion.div variants={fadeUp} className="mt-7">
+        <motion.div variants={fadeUp} className="mt-7 short:mt-4">
           {children}
         </motion.div>
-        <motion.div variants={fadeUp} className="mt-6 text-center text-[14px] text-fg-3">
+        <motion.div variants={fadeUp} className="mt-6 text-center text-[14px] text-fg-3 short:mt-3 short:text-[12px]">
           {footer}
         </motion.div>
       </motion.div>
